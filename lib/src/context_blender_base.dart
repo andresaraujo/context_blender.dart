@@ -34,21 +34,20 @@ enum BlendMode {
 
 class Blender {
   int fSoftlight(int a, int b) {
-    /*
-				http://en.wikipedia.org/wiki/Blend_modes#Soft_Light
-				2ab+a^2 (1-2b), if b<0.5
-				2a(1-b) +sqrt(a)(2b-1), otherwise
-			*/
+    /*http://en.wikipedia.org/wiki/Blend_modes#Soft_Light
+    2ab+a^2 (1-2b), if b<0.5
+    2a(1-b) +sqrt(a)(2b-1), otherwise*/
     int b2 = b << 1;
     if (b < 128) return (a * (b2 + (a * (255 - b2) >> 8))) >> 8;
-    else return (a * (511 - b2) + (math.sqrt(a << 8) * (b2 - 255))).toInt() >> 8;
+    else return (a * (511 - b2) + (math.sqrt(a << 8) * (b2 - 255))).toInt() >>
+        8;
   }
 
   int fOverlay(int a, int b) {
     return a < 128
-    ? (a * b) >> 7
-    : // (2*a*b)>>8 :
-    255 - (((255 - b) * (255 - a)) >> 7);
+        ? (a * b) >> 7
+        : // (2*a*b)>>8 :
+        255 - (((255 - b) * (255 - a)) >> 7);
   }
 
   int fDodge(int a, int b) {
@@ -59,12 +58,10 @@ class Blender {
     return (b == 255 && a == 0) ? 0 : 255 - math.min(255, ((255 - a) << 8) / b);
   }
 
-  /*
-			// yyy = similar to YCbCr
-			0.2990    0.5870    0.1140
-			-0.1687   -0.3313    0.5000
-			0.5000   -0.4187   -0.0813
-		*/
+  /*// yyy = similar to YCbCr
+  0.2990    0.5870    0.1140
+  -0.1687   -0.3313    0.5000
+  0.5000   -0.4187   -0.0813*/
   Map<String, double> rgb2YCbCr(r, g, b) {
     return {
       'r': 0.2990 * r + 0.5870 * g + 0.1140 * b,
@@ -73,11 +70,9 @@ class Blender {
     };
   }
 
-  /*
-			1.0000   -0.0000    1.4020
-			1.0000   -0.3441   -0.7141
-			1.0000    1.7720    0.0000
-		*/
+  /*1.0000   -0.0000    1.4020
+	1.0000   -0.3441   -0.7141
+	1.0000    1.7720    0.0000*/
   Map<String, double> YCbCr2rgb(r, g, b) {
     return {
       'r': r + 1.4020 * b,
@@ -89,29 +84,29 @@ class Blender {
   Map<String, double> rgb2hsv(r, g, b) {
     var c = rgb2YCbCr(r, g, b);
     var s = math.sqrt(c['g'] * c['g'] + c['b'] * c['b']),
-    h = math.atan2(c['g'], c['b']);
+        h = math.atan2(c['g'], c['b']);
     return {'h': h, s: s, 'v': c['r']};
   }
 
   Map<String, double> hsv2rgb(h, s, v) {
     var g = s * math.sin(h),
-    b = s * math.cos(h);
+        b = s * math.cos(h);
     return YCbCr2rgb(v, g, b);
   }
 
   blend(dom.CanvasElement fromCanvas, dom.CanvasElement destCanvas,
-        BlendMode blendMode, {num destX: 0, num destY: 0, num sourceX: 0,
-        num sourceY: 0, num width: 0, num height: 0}) {
+      BlendMode blendMode, {num destX: 0, num destY: 0, num sourceX: 0,
+      num sourceY: 0, num width: 0, num height: 0}) {
     if (width == 0) width = fromCanvas.width;
     if (height == 0) height = fromCanvas.height;
 
     width = math.min(
         math.min(width, fromCanvas.width - sourceX), destCanvas.width - destX);
     height = math.min(math.min(height, fromCanvas.height - sourceY),
-    destCanvas.height - destY);
+        destCanvas.height - destY);
 
     var srcD =
-    fromCanvas.context2D.getImageData(sourceX, sourceY, width, height);
+        fromCanvas.context2D.getImageData(sourceX, sourceY, width, height);
     var dstD = destCanvas.context2D.getImageData(destX, destY, width, height);
 
     List<int> src = srcD.data;
@@ -163,22 +158,22 @@ class Blender {
           break;
         case BlendMode.MULTIPLY:
           dst[px] = ((sRA * dRA + sRA * (1 - dA) + dRA * (1 - sA)) * demultiply)
-          .toInt();
+              .toInt();
           dst[px + 1] = ((sGA * dGA + sGA * (1 - dA) + dGA * (1 - sA)) *
-          demultiply).toInt();
+              demultiply).toInt();
           dst[px + 2] = ((sBA * dBA + sBA * (1 - dA) + dBA * (1 - sA)) *
-          demultiply).toInt();
+              demultiply).toInt();
           break;
         case BlendMode.DIFFERENCE:
           dst[px] = ((sRA + dRA - 2 * math.min(sRA * dA, dRA * sA)) *
-          demultiply).toInt();
+              demultiply).toInt();
           dst[px + 1] = ((sGA + dGA - 2 * math.min(sGA * dA, dGA * sA)) *
-          demultiply).toInt();
+              demultiply).toInt();
           dst[px + 2] = ((sBA + dBA - 2 * math.min(sBA * dA, dBA * sA)) *
-          demultiply).toInt();
+              demultiply).toInt();
           break;
 
-      // ******* Slightly different from Photoshop, where alpha is concerned
+        // ******* Slightly different from Photoshop, where alpha is concerned
         case BlendMode.SRC_IN:
           dA2 = sA * dA;
           demultiply = 255 / dA2;
@@ -189,7 +184,7 @@ class Blender {
           break;
         case BlendMode.PLUS:
         case BlendMode.ADD:
-        // Photoshop doesn't simply add the alpha channels; this might be correct wrt SVG 1.2
+          // Photoshop doesn't simply add the alpha channels; this might be correct wrt SVG 1.2
           dst[px] = (math.min(sRA + dRA, 1) * demultiply).toInt();
           dst[px + 1] = (math.min(sGA + dGA, 1) * demultiply).toInt();
           dst[px + 2] = (math.min(sBA + dBA, 1) * demultiply).toInt();
@@ -272,16 +267,16 @@ class Blender {
           break;
         case BlendMode.LIGHTERCOLOR:
           var rgb = 2.623 * (r1 - r2) + 5.15 * (g1 - g2) + b1 - b2 > 0
-          ? {'r': r1, 'g': g1, 'b': b1}
-          : {'r': r2, 'g': g2, 'b': b2};
+              ? {'r': r1, 'g': g1, 'b': b1}
+              : {'r': r2, 'g': g2, 'b': b2};
           dst[px] = (f1 * rgb['r'] + f2 * r1 + f3 * r2).toInt();
           dst[px + 1] = (f1 * rgb['g'] + f2 * g1 + f3 * g2).toInt();
           dst[px + 2] = (f1 * rgb['b'] + f2 * b1 + f3 * b2).toInt();
           break;
         case BlendMode.DARKERCOLOR:
           var rgb = 2.623 * (r1 - r2) + 5.15 * (g1 - g2) + b1 - b2 < 0
-          ? {'r': r1, 'g': g1, 'b': b1}
-          : {'r': r2, 'g': g2, 'b': b2};
+              ? {'r': r1, 'g': g1, 'b': b1}
+              : {'r': r2, 'g': g2, 'b': b2};
           dst[px] = (f1 * rgb['r'] + f2 * r1 + f3 * r2).toInt();
           dst[px + 1] = (f1 * rgb['g'] + f2 * g1 + f3 * g2).toInt();
           dst[px + 2] = (f1 * rgb['b'] + f2 * b1 + f3 * b2).toInt();
