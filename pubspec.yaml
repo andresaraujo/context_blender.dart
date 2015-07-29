@@ -1,0 +1,12 @@
+name: context_blender
+description: A small library to blend HTML Canvas Contexts
+version: 0.0.1
+author: Andres Araujo <a.araujo.azua@gmail.com>
+homepage: https://github.com/andresaraujo/context_blender.dart.git
+
+environment:
+  sdk: '>=1.0.0 <2.0.0'
+
+dev_dependencies:
+  test: '>=0.12.0 <0.13.0'
+  browser: any
