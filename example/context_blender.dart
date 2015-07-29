@@ -6,34 +6,24 @@ library context_blender;
 import 'dart:html' as dom;
 import 'package:context_blender/context_blender.dart';
 
-main() {
-  var url1 =  "monocle-0.jpg";
-  var url2 =  "monocle-1.jpg";
-
+main() async {
   var from = new dom.CanvasElement();
   var dest = new dom.CanvasElement();
 
   var img = new dom.ImageElement();
+  var img2 = new dom.ImageElement();
 
   var destImg =  dom.querySelector("#destImg") as dom.ImageElement;
-  img.src = url1;
-  img.onLoad.listen((_) {
-    from.context2D.drawImage(img, 0, 0);
 
-    var img2 = new dom.ImageElement();
-    img2.src = url2;
-    img2.onLoad.listen((_) {
-      dest.context2D.drawImage(img2, 0, 0);
+  img.src = "monocle-0.jpg";
+  img2.src = "monocle-1.jpg";
 
-      blend(from, dest, BlendMode.DIFFERENCE);
+  await img.onLoad.first;
+  await img2.onLoad.first;
 
-      destImg.src = dest.toDataUrl();
-    });
-  });
+  from.context2D.drawImage(img, 0, 0);
+  dest.context2D.drawImage(img2, 0, 0);
 
-
-
-
-
-
+  blend(from, dest, BlendMode.DIFFERENCE);
+  destImg.src = dest.toDataUrl();
 }

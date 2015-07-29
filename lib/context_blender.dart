@@ -13,6 +13,14 @@ export 'src/context_blender_base.dart' show BlendMode;
 
 const _blender = const Blender();
 
+/**
+ * Blends the context onto the destination context with the specified blend mode.
+ *
+ * The [fromCanvas] is the context that will be blended onto [destCanvas]
+ *
+ * See [BlendMode] for available blend modes
+ *
+ */
 void blend(
     CanvasElement fromCanvas, CanvasElement destCanvas, BlendMode blendMode,
     {num destX: 0, num destY: 0, num sourceX: 0, num sourceY: 0, num width: 0,
